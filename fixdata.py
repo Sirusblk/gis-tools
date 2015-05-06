@@ -14,8 +14,8 @@ def load_config():
 	with open("config.json") as config_file:
 		config = json.load(config_file)
 
-		CITY = config["city"]
-		PARCEL_HYPHENS = config["parcel_hypens"]
+		_CITY = config["city"]
+		_PARCEL_HYPHENS = config["parcel_hyphens"]
 
 
 def read_in(filename):
