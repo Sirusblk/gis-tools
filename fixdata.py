@@ -1,10 +1,24 @@
 # FixData
-#  - Desc: Fixes data from Property Pro
+#  - Desc: Fixes data from CoreLogic/DataQuick's Property Pro
 #  - Author: David McLaren
 #  - Usage: python3 fixdata.py data.csv
 from tempfile import NamedTemporaryFile
 import shutil
 import csv
+import json
+import argparse
+
+# Global variables set by config file
+_CITY = ""
+_PARCEL_HYPHENS = True
+
+def load_config():
+	with open("config.json") as config_file:
+		config = json.load(config_file)
+
+		CITY = config["city"]
+		PARCEL_HYPHENS = config["parcel_hypens"]
+
 
 def read_in(filename):
 	#tempfile = NamedTemporaryFile(delete=False)
@@ -40,9 +54,9 @@ def fix_parcels(property_info):
 			line[index] = temp
 
 
-
 def main():
 	pass
+
 
 if __name__ == '__main__':
 	main()
