@@ -2,8 +2,6 @@
 #  - Desc: Fixes data from CoreLogic/DataQuick's Property Pro
 #  - Author: David McLaren
 #  - Usage: python3 fixdata.py data.csv
-from tempfile import NamedTemporaryFile
-import shutil
 import csv
 import json
 import argparse
@@ -21,7 +19,6 @@ def load_config():
 
 
 def read_in(filename):
-	#tempfile = NamedTemporaryFile(delete=False)
 	output = []
 
 	with open(filename, newline='') as csv_file:
