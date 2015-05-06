@@ -10,6 +10,7 @@ import argparse
 _CITY = ""
 _PARCEL_HYPHENS = True
 
+# Loads the config file and sets global variables
 def load_config():
 	with open("config.json") as config_file:
 		config = json.load(config_file)
@@ -18,6 +19,7 @@ def load_config():
 		_PARCEL_HYPHENS = config["parcel_hyphens"]
 
 
+# Reads file in, returns list of each row from .csv file
 def read_in(filename):
 	output = []
 
@@ -48,6 +50,7 @@ def fix_parcels(property_info):
 	return property_info
 
 
+# Writes data out to new .csv file
 def write_out(property_info, filename):
 	filename = filename[:-4] + "_mod.csv"
 
