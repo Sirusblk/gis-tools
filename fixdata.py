@@ -48,6 +48,14 @@ def fix_parcels(property_info):
 	return property_info
 
 
+def write_out(property_info, filename):
+	filename = filename[:-4] + "_mod.csv"
+
+	with open(filename, 'w') as csv_file:
+		for line in property_info:
+			csv_file.write(','.join(line))
+
+
 def main():
 	# Parse Arguments
 	parser = argparse.ArgumentParser()
@@ -58,6 +66,8 @@ def main():
 	load_config()
 	csv_data = read_in(args.filename)
 	csv_data = fix_parcels(csv_data)
+
+	write_out(csv_data, args.filename)
 
 
 if __name__ == '__main__':
