@@ -23,7 +23,7 @@ def read_in(filename):
 
 def find_index(property_info, text="Parcel Number"):
     for i, attr in enumerate(property_info[0]):
-        if attr == "\"Parcel Number\"":
+        if attr == "\""+text+"\"":
             index = i
             return index
 
@@ -39,6 +39,37 @@ def fix_parcels(property_info):
         attr = line[index]
         temp = attr.replace('-','')
         line[index] = temp[:4] + '-' + temp[4:7] + '-' + temp[7:]
+
+    return property_info
+
+
+# Adds column with summerized address field
+def add_site_address_col(property_info, directionals=False):
+    num_index = find_index(property_info, "Site Address Street Number")
+    name_index = find_index(property_info, "Site Address Street Name")
+    record_index = max(num_index, name_index)
+
+    property_info[0].insert(record_index, "\"SiteAddress\"")
+
+    for line in property_info[1:]:
+        record = ""
+
+        # Add Street Number
+        if num_index != -1:
+            record += line[num_index].replace('\"','')
+        else:
+            print("[ERROR] Could not find column with Street Address Street Numbers")
+
+        # Add Street Name
+        if name_index != -1:
+            if (line[name_index] != "") and (line[name_index] != "0"):
+                record = record + ' ' + line[name_index].replace('\"','').rstrip()
+        else:
+            print("[ERROR] Could not find column with Street Address Names")
+
+        # Append concatenated address record
+        record = '\"' + record + '\"'
+        line.insert(record_index, record)
 
     return property_info
 
@@ -61,6 +92,7 @@ def main():
 
     csv_data = read_in(args.filename)
     csv_data = fix_parcels(csv_data)
+    csv_data = add_site_address_col(csv_data)
 
     write_out(csv_data, args.filename)
 
