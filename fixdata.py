@@ -21,7 +21,7 @@ def read_in(filename):
     return output
 
 
-def find_index(property_info, text="Parcel Number"):
+def find_index(property_info, text):
     for i, attr in enumerate(property_info[0]):
         if attr == "\""+text+"\"":
             index = i
@@ -32,7 +32,7 @@ def find_index(property_info, text="Parcel Number"):
 
 # Fixes structure of Parcels to 3-3-2, some are listed as 3-2-3
 def fix_parcels(property_info):
-    index = find_index(property_info)
+    index = find_index(property_info, "Parcel Number")
 
     # Skip initial header row
     for line in property_info[1:]:
@@ -44,10 +44,12 @@ def fix_parcels(property_info):
 
 
 # Adds column with summerized address field
-def add_site_address_col(property_info, directionals=False):
+def add_site_address_col(property_info, directionals=True, unit_numbers=True):
     num_index = find_index(property_info, "Site Address Street Number")
     name_index = find_index(property_info, "Site Address Street Name")
-    record_index = max(num_index, name_index)
+    dir_index = find_index(property_info, "Site Address Pre Directional")
+    unit_index = find_index(property_info, "Site Address Unit Number")
+    record_index = max(num_index, name_index, dir_index)
 
     property_info[0].insert(record_index, "\"SiteAddress\"")
 
@@ -60,12 +62,28 @@ def add_site_address_col(property_info, directionals=False):
         else:
             print("[ERROR] Could not find column with Street Address Street Numbers")
 
+        # Add Predirectional
+        if (directionals == True):
+            if (dir_index != -1):
+                if line[dir_index].replace('\"','').rstrip() != "":
+                    record = record + ' ' + line[dir_index].replace('\"','').rstrip()
+            else:
+                print("[ERROR] Could not find column of street directions")
+
         # Add Street Name
         if name_index != -1:
-            if (line[name_index] != "") and (line[name_index] != "0"):
+            if (line[name_index].replace('\"','').rstrip() != "") and (line[name_index] != "0"):
                 record = record + ' ' + line[name_index].replace('\"','').rstrip()
         else:
             print("[ERROR] Could not find column with Street Address Names")
+
+        # Add Unit Number
+        if (unit_numbers == True):
+            if (unit_index != -1):
+                if line[unit_index].replace('\"','').rstrip() != "":
+                    record = record + ' ' + line[unit_index].replace('\"','').rstrip()
+            else:
+                print("[ERROR] Could not find column with Unit Numbers")
 
         # Append concatenated address record
         record = '\"' + record + '\"'
