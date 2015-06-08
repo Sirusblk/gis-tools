@@ -31,7 +31,8 @@ def find_index(property_info, text):
 
 
 # Fixes structure of Parcels to 3-3-2, some are listed as 3-2-3
-def fix_parcels(property_info):
+def fix_parcels(input_properties):
+    property_info = input_properties
     index = find_index(property_info, "Parcel Number")
 
     # Skip initial header row
@@ -43,13 +44,27 @@ def fix_parcels(property_info):
     return property_info
 
 
+# Fix Street Addeess Street Name, remove extra space at end
+def fix_streets(input_properties):
+    property_info = input_properties
+    index = find_index(property_info, "Site Address Street Name")
+
+    # Skip initial header row
+    for line in property_info[1:]:
+        attr = line[index].replace('\"','').rstrip()
+        line[index] = '\"' + attr + '\"'
+
+    return property_info
+
+
 # Adds column with summerized address field
-def add_site_address_col(property_info, directionals=True, unit_numbers=True):
+def add_site_address_col(input_properties, directionals=True, unit_numbers=True):
+    property_info = input_properties
     num_index = find_index(property_info, "Site Address Street Number")
     name_index = find_index(property_info, "Site Address Street Name")
     dir_index = find_index(property_info, "Site Address Pre Directional")
     unit_index = find_index(property_info, "Site Address Unit Number")
-    record_index = max(num_index, name_index, dir_index)
+    record_index = max(num_index, name_index, dir_index, unit_index) + 1
 
     property_info[0].insert(record_index, "\"SiteAddress\"")
 
@@ -65,23 +80,23 @@ def add_site_address_col(property_info, directionals=True, unit_numbers=True):
         # Add Predirectional
         if (directionals == True):
             if (dir_index != -1):
-                if line[dir_index].replace('\"','').rstrip() != "":
-                    record = record + ' ' + line[dir_index].replace('\"','').rstrip()
+                if line[dir_index].replace('\"','') != "":
+                    record = record + ' ' + line[dir_index].replace('\"','')
             else:
                 print("[ERROR] Could not find column of street directions")
 
         # Add Street Name
         if name_index != -1:
-            if (line[name_index].replace('\"','').rstrip() != "") and (line[name_index] != "0"):
-                record = record + ' ' + line[name_index].replace('\"','').rstrip()
+            if (line[name_index] != "") and (line[name_index] != "0"):
+                record = record + ' ' + line[name_index].replace('\"','')
         else:
             print("[ERROR] Could not find column with Street Address Names")
 
         # Add Unit Number
         if (unit_numbers == True):
             if (unit_index != -1):
-                if line[unit_index].replace('\"','').rstrip() != "":
-                    record = record + ' ' + line[unit_index].replace('\"','').rstrip()
+                if line[unit_index].replace('\"','') != "":
+                    record = record + ' ' + line[unit_index].replace('\"','')
             else:
                 print("[ERROR] Could not find column with Unit Numbers")
 
@@ -110,6 +125,7 @@ def main():
 
     csv_data = read_in(args.filename)
     csv_data = fix_parcels(csv_data)
+    csv_data = fix_streets(csv_data)
     csv_data = add_site_address_col(csv_data)
 
     write_out(csv_data, args.filename)
